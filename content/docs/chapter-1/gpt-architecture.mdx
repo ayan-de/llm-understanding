@@ -1,0 +1,59 @@
+---
+title: 1.6 — A closer look at the GPT architecture
+description: Decoder-only, autoregressive, next-word prediction — the blueprint we'll code in practice.
+---
+
+GPT stands for **Generative Pretrained Transformer**. The name is the recipe:
+
+- **Generative** — it produces text.
+- **Pretrained** — it's first trained on a giant pile of text via next-word prediction.
+- **Transformer** — it's built on the transformer architecture.
+
+The original GPT paper is *Improving Language Understanding by Generative Pre-Training*
+(Radford et al., 2018). **GPT-3** is a scaled-up version of that idea with many more
+parameters, and the well-known assistant-style product (ChatGPT) is built by taking a
+GPT-3-class model and finetuning it to follow instructions using a recipe described in
+OpenAI's *InstructGPT* paper (we'll cover that style of finetuning in detail in
+Chapter 7).
+
+## The shape of GPT
+
+Compared to the full transformer, the GPT architecture is **deliberately simple**:
+
+- It keeps **only the decoder half** of the original transformer.
+- It stacks that decoder many, many times.
+- It predicts one word at a time, then feeds its own output back in to predict the
+  next one.
+
+That last property makes GPT an **autoregressive** model — each new word is
+conditioned on everything it has produced so far, which keeps the generated text
+coherent.
+
+### How big is "big"?
+
+The original transformer repeated the encoder/decoder block **6** times. GPT-3 has
+**96 transformer layers** and **175 billion parameters** in total. Newer models like
+Meta's Llama use the same underlying ideas with small tweaks — so understanding GPT
+today is as relevant as it was in 2020.
+
+## Why does next-word prediction work so well?
+
+It's *self-supervised*: we don't need humans to label anything. The "label" is simply
+the next word in the text. That trick lets us train on virtually unlimited amounts of
+raw, unlabelled text from the internet.
+
+And here's a fascinating side-effect: a model trained *only* to predict the next word
+ends up being able to **translate, classify, and summarise** — tasks it was never
+explicitly taught. Researchers call this an **emergent behavior**, and it pops out of
+exposure to giant amounts of diverse text.
+
+## What we'll build in practice
+
+We'll use GPT as our **blueprint**. Specifically:
+
+- A decoder-only transformer.
+- Trained on next-word prediction.
+- Later we'll add the ability to handle instructions and perform classification.
+
+That's exactly the recipe behind the most popular LLMs in production today, so the
+code you write will carry over to real-world use cases with only minor adjustments.

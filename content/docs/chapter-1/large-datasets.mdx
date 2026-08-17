@@ -1,0 +1,54 @@
+---
+title: 1.5 — Utilising large datasets
+description: Why the size and variety of training data matter, with a peek at what GPT-3 learned from.
+---
+
+The performance of GPT- and BERT-like models isn't just about clever architecture —
+it's also about the sheer **size and variety of the training text**. The data covers
+billions of words across natural languages, programming languages, and countless topics.
+
+## What GPT-3 was trained on
+
+To make the scale concrete, here is the dataset behind GPT-3 (the foundation model for
+the first version of ChatGPT):
+
+| Dataset | What it is | Tokens | Share |
+|---|---|---:|---:|
+| **CommonCrawl (filtered)** | Web crawl data | 410 B | 60 % |
+| **WebText2** | Web crawl data | 19 B | 22 % |
+| **Books1** | Internet book corpus | 12 B | 8 % |
+| **Books2** | Internet book corpus | 55 B | 8 % |
+| **Wikipedia** | High-quality text | 3 B | 3 % |
+
+A **token** ≈ a word or punctuation mark. We'll cover *how* you turn text into tokens
+in Chapter 2.
+
+### Quick notes on the numbers
+
+- The tokens add up to ~509 B, but GPT-3 was actually trained on only 300 B of them. The
+  authors never explained why.
+- CommonCrawl alone is about **570 GB** on disk.
+- Newer models like Meta's **LLaMA** added Arxiv papers (~92 GB) and StackExchange code
+  Q&As (~78 GB) on top of web data.
+
+> **Why this matters.** When a model sees so much text from so many places, it picks up
+> syntax, semantics, and even a chunk of "world knowledge" for free. That's what makes
+> these models so good at *generalising* to tasks they've never explicitly been trained
+> on.
+
+## Pretraining is expensive
+
+Because pretraining needs huge data and huge compute, the bill for GPT-3-sized runs
+lands in the millions of dollars (~**\$4.6 M** for GPT-3 in cloud credits).
+
+## The good news for the rest of the chapter
+
+We **won't** spend millions. Here's the plan:
+
+1. We'll **write code** that does pretraining, and run it on a small dataset for
+   learning purposes.
+2. We'll also learn how to **load openly available model weights** so you can skip the
+   expensive pretraining step entirely and jump straight to finetuning later on.
+
+Either path is useful — writing it yourself teaches you the mechanics, and loading
+pretrained weights teaches you how to apply existing models to real problems.

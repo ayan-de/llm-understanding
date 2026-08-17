@@ -1,0 +1,15 @@
+{
+  "title": "Chapter 1 — Understanding LLMs",
+  "defaultOpen": true,
+  "pages": [
+    "index",
+    "what-is-an-llm",
+    "applications",
+    "stages",
+    "transformer-architecture",
+    "large-datasets",
+    "gpt-architecture",
+    "building-an-llm",
+    "summary"
+  ]
+}

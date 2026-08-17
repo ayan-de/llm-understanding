@@ -1,0 +1,56 @@
+---
+title: 1.1 — What is an LLM?
+description: A plain-English definition of a large language model, where it sits in the AI world, and why next-word prediction is enough.
+---
+
+A **large language model (LLM)** is a neural network designed to understand, generate,
+and respond to human-like text. It is a deep neural network trained on massive amounts
+of text — sometimes a large chunk of the publicly available internet.
+
+## Where the "large" comes from
+
+The word **large** points at two things:
+
+- **Model size** — tens or even hundreds of billions of *parameters*. Parameters are the
+  adjustable weights inside the network. During training, they get tweaked so the model
+  gets better and better at predicting the next word in a sequence.
+- **Training data** — gigantic corpora of text that the model learns from.
+
+## Why "predict the next word"?
+
+Training a model to predict the next word sounds laughably simple. It works because
+language is sequential — to guess the next word you have to understand the context,
+structure, and relationships in everything that came before. That tiny task, repeated
+billions of times across an ocean of text, produces a startlingly capable model.
+
+## Generative AI, in context
+
+Because LLMs can *generate* new text, they are a form of **generative AI** (often
+shortened to *GenAI*). They live one level up the AI family tree:
+
+| Layer | What it means |
+|---|---|
+| **AI** | The broad idea of machines doing tasks that need human-like intelligence. |
+| **Machine learning** | Algorithms that learn from data instead of being hand-coded. |
+| **Deep learning** | Machine learning with multi-layer neural networks. |
+| **Generative AI / LLMs** | Deep-learning models that *produce* new content — in our case, text. |
+
+A classic, non-LLM example of machine learning is a **spam filter**. Instead of writing
+explicit rules ("block emails with the word *prize*"), you feed the model lots of emails
+already labelled *spam* or *not spam*. The model figures out the patterns on its own.
+
+In old-school (non-deep) machine learning, a human expert would still have to pick the
+features that matter — capitalisation, exclamation marks, suspicious links, and so on.
+**Deep learning removes that step**: the network decides which features matter all by
+itself. You only ever need the labelled examples.
+
+## The architecture inside
+
+LLMs are built on an architecture called the **transformer**, covered properly in
+[1.4](/docs/chapter-1/transformer-architecture). The transformer's superpower is that
+it can pay *selective attention* to different parts of the input when making a
+prediction, which is what makes it so good at the nuances of human language.
+
+> **Heads-up on the word "understand".** When we say an LLM "understands" text, we mean
+> it produces output that looks coherent and contextually appropriate — not that it has
+> consciousness or feelings. Keep that distinction in your back pocket.

@@ -1,0 +1,58 @@
+---
+title: 1.4 — Introducing the transformer architecture
+description: Encoders, decoders, and the attention mechanism that powers every modern LLM.
+---
+
+Most modern LLMs are built on the **transformer** architecture, introduced in the
+2017 paper *Attention Is All You Need*. To understand LLMs we have to take a quick
+look at the original transformer — it was first designed for translating English text
+into German and French.
+
+## The original transformer in one sentence
+
+The transformer is a **deep neural network with two halves**: an **encoder** that
+reads and digests the input, and a **decoder** that produces the output one word at a
+time.
+
+For a translation task:
+
+1. The encoder turns the source sentence ("This is an example") into a sequence of
+   numerical vectors — a kind of *fingerprint* that captures meaning and context.
+2. The decoder reads those vectors and writes the translated sentence word by word.
+
+Both halves are connected by a mechanism called **self-attention**, which lets the
+model decide which words in the input matter most for any given decision.
+
+> Self-attention is the star of the show, and we're going to implement it ourselves in
+> Chapter 3. For now, just remember: it lets a model weigh the importance of every
+> word in a sequence against every other word.
+
+## Two famous descendants: BERT and GPT
+
+The transformer is a toolbox, and researchers built different tools from different
+parts of it:
+
+- **BERT** — built from the *encoder* part. Trained by hiding some words in a sentence
+  and asking the model to fill them in. Great for understanding tasks like text
+  classification; BERT-style models are widely used in production for content
+  moderation, sentiment analysis, and search relevance.
+- **GPT** — built from the *decoder* part. Trained to predict the next word. Great for
+  generating text — translation, summarisation, fiction, code, you name it.
+
+These notes focus on **GPT**, because that's how you build something that *generates*
+text.
+
+## Bonus superpowers of GPT
+
+GPT models are trained just for next-word prediction, but they end up surprisingly
+versatile:
+
+- **Zero-shot learning** — solve a brand-new task with no examples at all.
+- **Few-shot learning** — solve a new task after seeing only a handful of examples in
+  the prompt.
+
+> **Transformers vs LLMs** — the two terms get used interchangeably a lot, but they
+> aren't identical. Transformers are a *family* of architectures (also used in vision).
+> LLMs are language models built on top of them. And there *are* large language models
+> that aren't transformers (built from RNNs or CNNs), though they are less common. In
+> these notes, "LLM" means transformer-based LLM, GPT-style.

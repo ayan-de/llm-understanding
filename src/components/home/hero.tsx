@@ -16,7 +16,7 @@ export function Hero() {
         </Badge>
 
         <h1 className="text-balance font-serif text-5xl font-medium tracking-tight md:text-7xl">
-          What the hack is{" "}
+          What the heck is{" "}
           <span className="from-primary to-accent bg-gradient-to-r bg-clip-text text-transparent">
             LLM
           </span>

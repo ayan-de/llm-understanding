@@ -1,0 +1,40 @@
+---
+title: Chapter 1 — Understanding LLMs
+description: A high-level, beginner-friendly tour of what large language models are, how transformers work, and the journey of building one.
+---
+
+import { Cards, Card } from 'fumadocs-ui/components/card';
+
+This chapter is the map for everything that follows. Before you write a single line of
+PyTorch, it makes sure you understand the *what*, the *why*, and the *how* of large
+language models. The original ideas are preserved — only the academic phrasing has
+been trimmed, so nothing important gets lost in jargon.
+
+## What you'll learn
+
+By the end of this chapter you'll be able to answer, in plain language:
+
+- What an LLM actually is (and what "large" really means).
+- Where LLMs are used today, from chatbots to code assistants.
+- The two big stages every LLM goes through: **pretraining** and **finetuning**.
+- What a *transformer* is, and why almost every modern LLM uses one.
+- How huge amounts of text data let these models generalise so well.
+- Why GPT is a "decoder-only" model, and how that differs from BERT.
+- The three-stage roadmap we'll follow to build an LLM from scratch.
+
+## Chapter contents
+
+<Cards>
+  <Card title="1.1 — What is an LLM?" href="/docs/chapter-1/what-is-an-llm" description="A neural network that predicts the next word, trained on a giant pile of text." />
+  <Card title="1.2 — Applications of LLMs" href="/docs/chapter-1/applications" description="Translation, summarisation, chatbots, code — the everyday superpowers of LLMs." />
+  <Card title="1.3 — Stages of building and using LLMs" href="/docs/chapter-1/stages" description="Pretrain a foundation model, then finetune it for your task." />
+  <Card title="1.4 — The transformer architecture" href="/docs/chapter-1/transformer-architecture" description="Encoders, decoders, and the attention mechanism that changed everything." />
+  <Card title="1.5 — Utilising large datasets" href="/docs/chapter-1/large-datasets" description="Why scale matters and what GPT-3 was actually trained on." />
+  <Card title="1.6 — A closer look at GPT" href="/docs/chapter-1/gpt-architecture" description="Decoder-only, autoregressive, next-word prediction. The blueprint we'll follow." />
+  <Card title="1.7 — Building a large language model" href="/docs/chapter-1/building-an-llm" description="The three-stage plan for coding an LLM from scratch in code." />
+  <Card title="1.8 — Summary" href="/docs/chapter-1/summary" description="The one-page recap of everything above." />
+</Cards>
+
+> A quick note on tone: when we say an LLM "understands" language, we mean it produces
+> text that *looks coherent* — not that it thinks or feels anything. Keep that caveat in
+> mind throughout.

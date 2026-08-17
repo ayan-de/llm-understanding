@@ -1,0 +1,46 @@
+---
+title: 1.8 — Summary
+description: One-page recap of everything Chapter 1 covered.
+---
+
+Here is the whole chapter on a single page. Keep it handy for a quick refresher.
+
+## Key ideas
+
+- **LLMs transformed NLP.** Earlier approaches relied on hand-written rules and
+  statistical tricks. LLMs replaced them with deep-learning models that understand,
+  generate, and translate human language at a level nobody had seen before.
+- **Two-stage training.** Modern LLMs are first *pretrained* on a huge unlabelled
+  corpus using next-word prediction, then *finetuned* on smaller labelled data to
+  follow instructions or classify text.
+- **Transformers power them.** The transformer's *attention mechanism* gives the LLM
+  selective access to the whole input sequence while generating output one word at a
+  time.
+- **Encoder vs decoder.** The original transformer has both. Text-generation LLMs like
+  GPT-3 and ChatGPT keep only the decoder, which keeps the architecture simple and
+  scaled.
+- **Scale matters.** Pretraining needs billions of words. Here we'll implement training
+  on small datasets and also learn how to load openly available model weights.
+- **Emergent behaviour.** Despite being trained for "just" next-word prediction, GPT
+  models can classify, translate, summarise, and more.
+- **Finetuning wins.** A finetuned foundation model often beats a general-purpose LLM
+  on a narrow task.
+- **Build your own.** Custom LLMs unlock privacy, lower latency, and full control.
+
+## Mental model to take forward
+
+```
+Pretraining on giant text  →  Foundation model
+                                   │
+                                   ├─ Instruction finetune  →  Chatbot / assistant
+                                   └─ Classification finetune →  Spam / sentiment / etc.
+```
+
+That's the entire shape of modern LLM engineering, and the sections ahead walk through
+every box on the diagram in PyTorch.
+
+## Up next
+
+Chapter 2 — *Working with Text Data* — covers how raw text becomes the tokens and
+embeddings that actually feed a neural network. It's the necessary bridge between the
+bird's-eye view we just took and the hands-on code waiting in Chapter 3.

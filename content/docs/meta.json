@@ -1,0 +1,5 @@
+{
+  "title": "Docs",
+  "pages": ["index", "---Chapter 1---", "chapter-1"],
+  "defaultOpen": true
+}

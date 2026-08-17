@@ -28,7 +28,7 @@ export function Footer() {
             <BookOpen className="size-4" />
           </span>
           <div className="space-y-0.5">
-            <p className="text-sm font-medium">What the hack is LLM</p>
+            <p className="text-sm font-medium">What the heck is LLM</p>
             <p className="text-muted-foreground text-xs">
               Learning notes, in public.
             </p>

@@ -1,0 +1,41 @@
+---
+title: 1.7 — Building a large language model
+description: The three-stage plan we'll follow to code an LLM from scratch in code.
+---
+
+This chapter laid the conceptual groundwork. The remaining sections turn those ideas
+into working code, following a deliberate three-stage roadmap.
+
+## Stage 1 — Data + attention (Chapters 2 & 3)
+
+- Learn how to **prepare text** for an LLM (tokenisation, embeddings, data sampling).
+- Implement the **attention mechanism** that sits at the heart of every transformer.
+
+By the end of stage 1, you'll have every piece in place to assemble a GPT-like model.
+
+## Stage 2 — Pretrain a foundation model (Chapters 4 & 5)
+
+- Code the GPT architecture end-to-end.
+- Pretrain it on a (small) text corpus.
+- Cover the basics of **evaluating LLMs**, an essential skill for any NLP system.
+
+> Training a GPT-sized model from scratch costs millions. So here we'll train a
+> **small** version for learning, and we'll also show how to **load openly available
+> weights** so you can skip pretraining when you only need the downstream steps.
+
+## Stage 3 — Finetune for real tasks (Chapters 6 & 7)
+
+- Take the pretrained model from stage 2 and **finetune it to follow instructions** —
+  the same general recipe used by today's instruction-following assistants.
+- Finetune it for **classification tasks** like spam detection or sentiment analysis —
+  the bread-and-butter of production NLP.
+
+## Why this order?
+
+Pretraining teaches language. Finetuning teaches a *task*. Trying to finetune before
+pretraining is like asking someone to write an essay without ever learning the
+language. By following these three stages in order, you'll understand *every* major
+mechanism in a modern LLM pipeline.
+
+> Buckle up — in the next chapter we start with the data side: turning raw text into
+> the tokens that actually feed a neural network.

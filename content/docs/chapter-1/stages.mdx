@@ -1,0 +1,57 @@
+---
+title: 1.3 — Stages of building and using LLMs
+description: Why we build our own LLMs, and how pretraining + finetuning shape every modern model.
+---
+
+## Why build your own LLM?
+
+Writing an LLM from scratch is the best way to understand how it actually works — and
+what it can't do. Once you do, you can also **pretrain or finetune** an existing
+open-source model on your own data.
+
+Custom-built LLMs often beat general-purpose ones on a specific task. Common examples
+across industries:
+
+- **Financial-domain LLMs** — tuned on filings, reports, and market text to assist with
+  analysis and summarisation in finance.
+- **Clinical / biomedical LLMs** — tuned on medical literature and Q&A datasets to help
+  answer clinical questions.
+
+There are three big reasons a company would want its own LLM:
+
+1. **Privacy.** Sensitive data never has to leave the building.
+2. **Latency & cost.** A small model can run on a laptop or phone, skipping the cloud.
+3. **Control.** You decide exactly when the model gets updated and how it behaves.
+
+## The two big stages: pretraining, then finetuning
+
+Almost every modern LLM is built in two stages:
+
+### 1. Pretraining — learn language broadly
+
+- Train on a *huge* corpus of raw text (no labels needed).
+- The task: **predict the next word**.
+- Output: a "**base**" or "**foundation**" model — for example the original GPT-3.
+- The base model can finish sentences and do simple few-shot tasks.
+
+### 2. Finetuning — specialise on your task
+
+- Take the pretrained base model.
+- Train it further on a smaller, *labelled* dataset that's specific to what you want.
+- Two popular flavours:
+  - **Instruction finetuning** — pairs of instructions and answers (translate *this*
+    text → expected translation). This is the recipe used to turn a base model into an
+    instruction-following assistant.
+  - **Classification finetuning** — text + class labels (spam vs not-spam, positive vs
+    negative review, etc).
+
+> **Quick aside** — the next-word pretraining task is a form of *self-supervised*
+> learning. We don't manually label anything; the structure of the text itself provides
+> the label (the next word). That's how we can throw enormous, unlabelled datasets at
+> the model.
+
+## Where this chapter is heading
+
+In the remaining sections we'll cover the architecture that makes all this possible
+(the transformer), the shape of the data that fuels it, the specific blueprint we'll
+follow (GPT), and a roadmap for what we'll actually build in code.

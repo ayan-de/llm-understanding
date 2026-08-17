@@ -1,4 +1,4 @@
-export const appName = 'What the hack is LLM';
+export const appName = 'What the heck is LLM';
 export const docsRoute = '/docs';
 export const docsImageRoute = '/og/docs';
 export const docsContentRoute = '/llms.mdx/docs';
