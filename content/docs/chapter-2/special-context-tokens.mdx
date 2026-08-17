@@ -1,0 +1,94 @@
+---
+title: 2.4 — Adding special context tokens
+description: Handling unknown words and marking boundaries between unrelated texts with &lt;|unk|&gt; and &lt;|endoftext|&gt;.
+---
+
+Our `SimpleTokenizerV1` crashes on any word it hasn't seen. We need two upgrades:
+
+1. An **unknown-word token** so the tokeniser never throws a `KeyError`.
+2. A **document-boundary token** so we can concatenate unrelated texts without the model
+   getting confused.
+
+The conventional choices are:
+
+| Token | Purpose |
+|---|---|
+| `<\|unk\|>` | Stand-in for any word the model doesn't know. |
+| `<\|endoftext\|>` | Marks where one text ends and another begins. |
+
+## Adding the tokens to the vocabulary
+
+```python
+all_tokens = sorted(list(set(preprocessed)))
+all_tokens.extend(["<|endoftext|>", "<|unk|>"])
+vocab = {token: integer for integer, token in enumerate(all_tokens)}
+```
+
+The vocabulary grows by 2. `The Verdict` vocabulary goes from 1,130 → 1,132.
+
+## Tokeniser V2: handle unknown words
+
+```python
+class SimpleTokenizerV2:
+    def __init__(self, vocab):
+        self.str_to_int = vocab
+        self.int_to_str = {i: s for s, i in vocab.items()}
+
+    def encode(self, text):
+        preprocessed = re.split(r'([,.?_!"()\']|--|\s)', text)
+        preprocessed = [item.strip() for item in preprocessed if item.strip()]
+        preprocessed = [
+            item if item in self.str_to_int else "<|unk|>"
+            for item in preprocessed
+        ]
+        ids = [self.str_to_int[s] for s in preprocessed]
+        return ids
+
+    def decode(self, ids):
+        text = " ".join([self.int_to_str[i] for i in ids])
+        text = re.sub(r'\s+([,.?!"()\'])', r'\1', text)
+        return text
+```
+
+The only change is the line that swaps any unknown token for `&lt;|unk|&gt;` before the ID
+lookup.
+
+## Trying it out on two unrelated sentences
+
+```python
+text1 = "Hello, do you like tea?"
+text2 = "In the sunlit terraces of the palace."
+text = " <|endoftext|> ".join((text1, text2))
+# → "Hello, do you like tea? <|endoftext|> In the sunlit terraces of the palace."
+
+ids = tokenizer.encode(text)
+# → [1160, 5, 362, ..., 1159, 57, ..., 1160, 7]
+```
+
+Decoding the IDs back:
+
+```
+<|unk|>, do you like tea? <|endoftext|> In the sunlit terraces of the <|unk|>.
+```
+
+Both `Hello` and `palace` got replaced by `&lt;|unk|&gt;`, and the `&lt;|endoftext|&gt;` marker sits
+between the two unrelated passages.
+
+## Other special tokens you might meet
+
+Different models use different sets. Common ones:
+
+| Token | Meaning |
+|---|---|
+| `[BOS]` (beginning of sequence) | Marks the start of a piece of text. |
+| `[EOS]` (end of sequence) | Marks the end. Same idea as `&lt;|endoftext|&gt;`. |
+| `[PAD]` (padding) | Fills shorter texts in a batch up to a common length. |
+
+GPT models take the minimalist route: **just `&lt;|endoftext|&gt;`**, which doubles as both an
+end marker and a padding token. Padding is handled via attention masking later — the
+model simply ignores the padded positions, so the exact padding token doesn't matter
+much.
+
+GPT models also **don't use `&lt;|unk|&gt;`** at all. They sidestep the problem entirely by
+using a smarter tokenisation scheme (next section) that breaks unknown words into
+subword pieces it already knows.

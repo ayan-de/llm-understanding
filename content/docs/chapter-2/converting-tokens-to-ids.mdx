@@ -1,0 +1,96 @@
+---
+title: 2.3 — Converting tokens into token IDs
+description: How to build a vocabulary and turn each token into a unique integer — the bridge from strings to numbers.
+---
+
+Strings are great for humans, useless for math. To feed tokens into a neural network we
+need each token mapped to a **unique integer** — a **token ID**. The mapping from token
+to ID is called a **vocabulary**.
+
+## Step 1 — build the vocabulary
+
+Take all the tokens you produced in the last section, throw away duplicates, and sort the
+remaining unique ones alphabetically:
+
+```python
+all_words = sorted(set(preprocessed))
+vocab_size = len(all_words)   # → 1,130 for The Verdict
+```
+
+Each unique token now gets a sequential integer ID starting from 0.
+
+## Step 2 — make a dictionary
+
+```python
+vocab = {token: integer for integer, token in enumerate(all_words)}
+```
+
+That gives you the lookup table. A snippet:
+
+```text
+('!', 0)
+('"', 1)
+("'", 2)
+...
+('Her', 49)
+('Hermia', 50)
+```
+
+## Step 3 — wrap it in a tokeniser class
+
+A real tokeniser needs both directions:
+
+- **`encode(text)`** — text → token IDs.
+- **`decode(ids)`** — token IDs → text.
+
+Both directions are useful: `encode` for feeding the model, `decode` for converting the
+model's numeric output back into readable text.
+
+```python
+class SimpleTokenizerV1:
+    def __init__(self, vocab):
+        self.str_to_int = vocab
+        self.int_to_str = {i: s for s, i in vocab.items()}
+
+    def encode(self, text):
+        preprocessed = re.split(r'([,.?_!"()\']|--|\s)', text)
+        preprocessed = [item.strip() for item in preprocessed if item.strip()]
+        ids = [self.str_to_int[s] for s in preprocessed]
+        return ids
+
+    def decode(self, ids):
+        text = " ".join([self.int_to_str[i] for i in ids])
+        text = re.sub(r'\s+([,.?!"()\'])', r'\1', text)
+        return text
+```
+
+## Round-tripping text works on known words
+
+For a sentence inside the training text:
+
+```python
+text = '"It\'s the last he painted, you know," Mrs. Gisburn said with pardonable pride.'
+ids = tokenizer.encode(text)
+print(tokenizer.decode(ids))
+# → "It's the last he painted, you know," Mrs. Gisburn said with pardonable pride.
+```
+
+`encode` produces a list of integers, `decode` stitches them back into text. Round-trip
+works perfectly.
+
+## Round-tripping breaks on unknown words
+
+Try a sentence with a word not in *The Verdict*:
+
+```python
+tokenizer.encode("Hello, do you like tea?")
+# → KeyError: 'Hello'
+```
+
+The vocabulary only knows words it has seen. `Hello` wasn't in the training text, so
+there is no entry for it.
+
+> The takeaway: a tiny training corpus gives you a tiny vocabulary, and that breaks the
+> moment the model sees a real-world sentence. The fix is either a much larger training
+> set, or — much more practical — a smarter tokenisation scheme (next section) that
+> can handle any word, even ones it has never seen.

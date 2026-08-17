@@ -1,0 +1,16 @@
+{
+  "title": "Chapter 2 — Working with Text Data",
+  "defaultOpen": true,
+  "pages": [
+    "index",
+    "understanding-word-embeddings",
+    "tokenizing-text",
+    "converting-tokens-to-ids",
+    "special-context-tokens",
+    "byte-pair-encoding",
+    "data-sampling-sliding-window",
+    "creating-token-embeddings",
+    "encoding-word-positions",
+    "summary"
+  ]
+}

@@ -1,0 +1,88 @@
+---
+title: 2.8 — Encoding word positions
+description: Why we need positional embeddings, and how GPT models inject token order into the input.
+---
+
+So far we have:
+
+- Token IDs (from the tokeniser).
+- Token embeddings (one vector per token ID, learned from scratch).
+
+Both treat tokens independently. Token ID 5 always produces the same embedding vector,
+**no matter where it sits in the sequence**.
+
+## The problem: order matters
+
+In a sentence like:
+
+```text
+"The dog chased the cat."
+"The cat chased the dog."
+```
+
+The same words appear in a different order and mean something completely different. The
+self-attention mechanism we'll build in Chapter 3 is, by itself, **position-agnostic** —
+it can relate tokens to each other, but it doesn't know which one came first.
+
+We need to give the model a sense of order ourselves. We do that with **positional
+embeddings**.
+
+## Two flavours
+
+### Absolute positional embeddings
+
+A unique vector per position. The first token gets position-0, the second gets
+position-1, and so on. The model adds the position vector to the token vector before
+feeding the result into the rest of the network.
+
+```
+position 0:   [p0]  + [embed(token 0)]  →  input to LLM
+position 1:   [p1]  + [embed(token 1)]  →  input to LLM
+position 2:   [p2]  + [embed(token 2)]  →  input to LLM
+```
+
+### Relative positional embeddings
+
+Instead of "I'm at position 5", the model learns relationships like "I'm 2 tokens after
+the previous one". The advantage is better generalisation to sequence lengths the model
+hasn't seen during training.
+
+OpenAI's GPT models use **absolute** positional embeddings that are themselves
+**learned during training**, not hard-coded like the fixed sinusoidal embeddings in the
+original transformer paper.
+
+## Wiring it together
+
+In code, you create a second embedding layer for positions and add its output to the
+token embedding output:
+
+```python
+vocab_size     = 50_257
+output_dim     = 256
+context_length = 1024   # maximum number of tokens the model can look at
+
+token_embedding_layer    = torch.nn.Embedding(vocab_size, output_dim)
+pos_embedding_layer      = torch.nn.Embedding(context_length, output_dim)
+```
+
+Then for each batch:
+
+```python
+positions = torch.arange(context_length)              # [0, 1, 2, ..., 1023]
+pos_embeddings    = pos_embedding_layer(positions)    # (1024, 256)
+token_embeddings  = token_embedding_layer(input_ids)  # (batch, 1024, 256)
+
+input_embeddings = token_embeddings + pos_embeddings   # (batch, 1024, 256)
+```
+
+That's the **complete input** to the LLM's main layers: a sequence of vectors that
+encode both *what* each token is and *where* it sits.
+
+## What we now have
+
+A single tensor of shape `(batch, context_length, embedding_dim)` ready to be fed into
+the transformer blocks. From here on it's no longer about preparing text — it's about
+training a model to use it.
+
+Up next: Chapter 3 — the attention mechanism that turns this sequence of vectors into
+something a model can actually learn from.

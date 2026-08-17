@@ -1,0 +1,89 @@
+---
+title: 2.2 — Tokenizing text
+description: How to split a passage of text into individual tokens — words and punctuation — that the model can work with.
+---
+
+This is where we get our hands dirty. We have to chop raw text into **tokens** — the
+smallest units our model will see. A token is usually a word, but punctuation marks and
+special characters become their own tokens too.
+
+To illustrate, we'll tokenise a public-domain short story — *The Verdict* by Edith Wharton,
+which has been released into the public domain. It's a popular choice because it's small
+(~20k characters), fits in a single text file, and is rich enough to make the examples
+realistic.
+
+## The whole pipeline in one picture
+
+```
+raw text
+  → split into tokens  (this section)
+    → convert tokens to integer IDs  (section 2.3)
+      → turn token IDs into embedding vectors  (section 2.7)
+```
+
+## Step 1 — split on whitespace
+
+A first naive attempt uses Python's `re` (regular expressions) to split on whitespace:
+
+```python
+import re
+text = "Hello, world. This, is a test."
+result = re.split(r'(\s)', text)
+```
+
+Result: `['Hello,', ' ', 'world.', ' ', 'This,', ' ', 'is', ' ', 'a', ' ', 'test.']`
+
+Words are split, but punctuation is still glued to them. We need to fix that.
+
+## Step 2 — also split on punctuation
+
+Tweak the regex to also break on commas and periods:
+
+```python
+result = re.split(r'([,.]|\s)', text)
+```
+
+Now punctuation comes out as its own list entry — but whitespace is still in the list, and
+we usually don't want that.
+
+## Step 3 — strip the whitespace
+
+```python
+result = [item for item in result if item.strip()]
+```
+
+Final result: `['Hello', ',', 'world', '.', 'This', ',', 'is', 'a', 'test', '.']`
+
+> **Capitalisation** — note that we kept the original case. Lowercasing everything would
+> hurt the model: case helps distinguish proper nouns from common nouns, marks sentence
+> boundaries, and teaches the model to generate well-capitalised text.
+
+## Step 4 — handle the rest of the punctuation we care about
+
+Real text has dashes, quotation marks, question marks, parentheses and more. Extend the
+regex:
+
+```python
+text = "Hello, world. Is this-- a test?"
+result = re.split(r'([,.:;?_!"()\']|--|\s)', text)
+result = [item.strip() for item in result if item.strip()]
+```
+
+Final: `['Hello', ',', 'world', '.', 'Is', 'this', '--', 'a', 'test', '?']`
+
+This simple tokeniser now handles a reasonable slice of English punctuation. We can
+apply it to the entire *Verdict* text and get a list of tokens.
+
+## What about whitespace?
+
+Removing whitespace shrinks the vocabulary and saves memory. We do that here for
+simplicity. Some applications (training on Python source code, for example) genuinely
+need whitespace tokens because indentation is meaningful. For those, you keep
+whitespace in the vocabulary.
+
+## What this section taught you
+
+- A tokeniser's job is to chop text into a sequence of meaningful units.
+- A minimal tokeniser can be built with a single regex.
+- The next step is to convert those tokens into **integer IDs**, because right now
+  they're still just strings.

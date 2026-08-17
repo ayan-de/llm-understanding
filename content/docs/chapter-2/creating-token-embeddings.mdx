@@ -1,0 +1,95 @@
+---
+title: 2.7 — Creating token embeddings
+description: How an embedding layer turns each token ID into a learnable vector the model can train on.
+---
+
+We've turned text into integers. Now we turn integers into **vectors** that the model can
+actually do math on. The PyTorch layer that does this is the **embedding layer**.
+
+## An embedding layer is a lookup table
+
+Conceptually an embedding layer is a matrix:
+
+- One **row per token** in the vocabulary.
+- One **column per embedding dimension**.
+
+To embed a token ID, you look up row `ID` and hand back that row as a vector.
+
+## A tiny example
+
+Say we have a vocabulary of 6 words and want embeddings of size 3:
+
+```python
+import torch
+
+vocab_size = 6
+output_dim = 3
+
+torch.manual_seed(123)
+embedding_layer = torch.nn.Embedding(vocab_size, output_dim)
+```
+
+The layer's weight matrix has shape `(6, 3)` and starts with small random values:
+
+```text
+tensor([[ 0.3374, -0.1778, -0.1690],
+        [ 0.9178,  1.5810,  1.3010],
+        [ 1.2753, -0.2010, -0.1606],
+        [-0.4015,  0.9666, -1.1481],
+        [-1.1589,  0.3255, -0.6315],
+        [-2.8400, -0.7849, -1.4096]], requires_grad=True)
+```
+
+Embed one token ID:
+
+```python
+embedding_layer(torch.tensor([3]))
+# → tensor([[-0.4015, 0.9666, -1.1481]])
+```
+
+That's just the **4th row** of the matrix (Python is 0-indexed). Exactly what you
+expect from a lookup table.
+
+Embed several token IDs:
+
+```python
+input_ids = torch.tensor([2, 3, 5, 1])
+embedding_layer(input_ids)
+# → tensor of shape (4, 3)
+```
+
+Each input ID gets its own row, and the result is a `(4, 3)` matrix.
+
+## These weights get trained
+
+The randomness is the **starting point**. As the model trains via backpropagation, the
+embedding layer's weights are updated to minimise the next-token prediction loss. So by
+the end of training, the embedding matrix is full of vectors that the model has learned
+are useful for the task.
+
+> **Embedding layers vs. one-hot + matrix multiply** — if you've seen one-hot encoding
+> before, an embedding layer is essentially the same thing but much more efficient. A
+> one-hot vector × weight matrix is mathematically equivalent to a lookup, but the
+> embedding layer skips the giant mostly-zero matrix and the wasted multiplication.
+
+## Realistic sizes
+
+For our actual experiments we use a much more realistic shape:
+
+```python
+vocab_size = 50_257    # the GPT-2 BPE vocabulary
+output_dim = 256       # much smaller than GPT-3's 12,288, but plenty for learning
+token_embedding_layer = torch.nn.Embedding(vocab_size, output_dim)
+```
+
+If you pull a batch of 8 windows × 4 tokens each from the data loader, you get a token
+ID tensor of shape `(8, 4)`. After `token_embedding_layer`, you get an embedding tensor
+of shape `(8, 4, 256)` — every token now lives in a 256-dimensional space.
+
+## What's still missing
+
+Token embeddings tell the model **what** each token is. They do **not** tell it
+**where** the token sits in the sequence. `embedding_layer(token_id)` returns the same
+vector whether the token is the first, the tenth, or the hundredth in the input.
+
+The model needs that positional information too. That's what the next section adds.

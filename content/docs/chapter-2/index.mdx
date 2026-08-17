@@ -1,0 +1,42 @@
+---
+title: Chapter 2 — Working with Text Data
+description: How raw text becomes tokens, token IDs, and embedding vectors — the entire preparation pipeline that feeds an LLM.
+---
+
+import { Cards, Card } from 'fumadocs-ui/components/card';
+
+Before an LLM can do anything interesting, raw text has to be turned into numbers it can
+actually crunch. Chapter 2 is the gap between "I have a text file" and "I have a tensor
+ready to feed into the model". It's the necessary bridge between the bird's-eye view from
+Chapter 1 and the actual PyTorch code we'll write in Chapter 3.
+
+## What you'll learn
+
+By the end of this chapter you'll be able to answer, in plain language:
+
+- Why neural networks can't read text directly and why we need *embeddings*.
+- How to **tokenize** text into words and punctuation that the model can work with.
+- How tokens are converted into **integer token IDs** via a *vocabulary*.
+- The role of **special tokens** like `&lt;|unk|&gt;` and `&lt;|endoftext|&gt;`.
+- What **byte pair encoding (BPE)** is and why GPT-style LLMs use it.
+- How to build **input-target pairs** for next-word prediction using a *sliding window*.
+- How token IDs become **embedding vectors** the model can train on.
+- How **positional embeddings** teach the model about word order.
+
+## Chapter contents
+
+<Cards>
+  <Card title="2.1 — Understanding word embeddings" href="/docs/chapter-2/understanding-word-embeddings" description="Why we need to convert text into continuous-valued vectors before anything else can happen." />
+  <Card title="2.2 — Tokenizing text" href="/docs/chapter-2/tokenizing-text" description="Splitting a passage into individual words and punctuation characters." />
+  <Card title="2.3 — Converting tokens into token IDs" href="/docs/chapter-2/converting-tokens-to-ids" description="Building a vocabulary and mapping each token to a unique integer." />
+  <Card title="2.4 — Adding special context tokens" href="/docs/chapter-2/special-context-tokens" description="Handling unknown words and marking boundaries between unrelated texts." />
+  <Card title="2.5 — Byte pair encoding (BPE)" href="/docs/chapter-2/byte-pair-encoding" description="The subword tokenization scheme GPT-2, GPT-3, and friends actually use." />
+  <Card title="2.6 — Data sampling with a sliding window" href="/docs/chapter-2/data-sampling-sliding-window" description="Turning one long text into many input-target pairs for next-word training." />
+  <Card title="2.7 — Creating token embeddings" href="/docs/chapter-2/creating-token-embeddings" description="Embedding layers as a learnable lookup table from token IDs to vectors." />
+  <Card title="2.8 — Encoding word positions" href="/docs/chapter-2/encoding-word-positions" description="Adding absolute positional embeddings so the model knows token order." />
+  <Card title="2.9 — Summary" href="/docs/chapter-2/summary" description="The one-page recap of the entire text-preparation pipeline." />
+</Cards>
+
+> A heads-up: this chapter is mostly mechanical — text in → tokens out → numbers out.
+> The interesting *learning* arrives in the next chapter, where we wire those numbers
+> into a model that actually pays attention to them.

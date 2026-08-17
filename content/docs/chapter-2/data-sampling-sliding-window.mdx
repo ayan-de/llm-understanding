@@ -1,0 +1,106 @@
+---
+title: 2.6 — Data sampling with a sliding window
+description: How to turn one long text into many input-target pairs that teach the model to predict the next token.
+---
+
+We have a tokeniser that turns text into integers. Now we need the **training data**:
+lots of small examples of "given these tokens, predict the next one".
+
+The simplest way to make those examples from a single long text: the **sliding window**
+approach.
+
+## What is an input-target pair?
+
+LLMs are pretrained by predicting the next token. Given a window of input tokens, the
+target is the same window shifted one position to the right.
+
+```
+input:    [290, 4920, 2241, 287]
+target:   [4920, 2241, 287, 257]
+         ↑
+         shifted by one position
+```
+
+Each token in the input predicts the token that comes immediately after it.
+
+## Building the pairs with a sliding window
+
+Tokenise the whole text, then slide a window of length `max_length` across the tokens.
+At each step, save the window as inputs and the same window shifted by one as targets.
+
+```python
+import torch
+from torch.utils.data import Dataset, DataLoader
+
+
+class GPTDatasetV1(Dataset):
+    def __init__(self, txt, tokenizer, max_length, stride):
+        self.input_ids = []
+        self.target_ids = []
+
+        token_ids = tokenizer.encode(txt)
+
+        for i in range(0, len(token_ids) - max_length, stride):
+            input_chunk  = token_ids[i : i + max_length]
+            target_chunk = token_ids[i + 1 : i + max_length + 1]
+            self.input_ids.append(torch.tensor(input_chunk))
+            self.target_ids.append(torch.tensor(target_chunk))
+
+    def __len__(self):
+        return len(self.input_ids)
+
+    def __getitem__(self, idx):
+        return self.input_ids[idx], self.target_ids[idx]
+```
+
+## Wrapping it in a DataLoader
+
+A PyTorch `DataLoader` handles batching, shuffling, and parallel loading for us:
+
+```python
+def create_dataloader_v1(txt, batch_size=4, max_length=256,
+                         stride=128, shuffle=True, drop_last=True, num_workers=0):
+    tokenizer = tiktoken.get_encoding("gpt2")
+    dataset = GPTDatasetV1(txt, tokenizer, max_length, stride)
+    return DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=shuffle,
+        drop_last=drop_last,
+        num_workers=num_workers,
+    )
+```
+
+## The `stride` parameter
+
+The stride controls how far the window jumps between consecutive examples:
+
+- `stride = max_length` → windows do **not** overlap. Each token appears in exactly one
+  input window. Low risk of overfitting, uses data efficiently.
+- `stride = 1` → windows shift by one token each time. Massive overlap; the same token
+  appears in many input windows. More data, more redundancy, higher overfitting risk.
+
+In practice, a stride equal to roughly half of `max_length` is a common compromise.
+
+## The `batch_size` parameter
+
+You can also feed the model **multiple windows per step** by setting `batch_size > 1`.
+That gives you a tensor of shape `(batch_size, max_length)`. Larger batches:
+
+- Use more memory.
+- Give smoother, less noisy gradient updates.
+- Speed up training on GPUs.
+
+It's the usual deep-learning trade-off. We try both and tune.
+
+## Why this design
+
+A sliding-window data loader is simple but it's also exactly what GPT needs:
+
+- Each example is **self-contained** — input + target — so the trainer doesn't have to
+  juggle state.
+- The target is the input shifted by one, which matches next-token prediction.
+- Stride and batch size give us two cheap knobs to control overfitting and throughput.
+
+In the next section we take the integer token IDs that come out of this loader and
+finally turn them into the **embedding vectors** the model actually trains on.

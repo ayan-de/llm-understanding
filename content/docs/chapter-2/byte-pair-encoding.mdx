@@ -1,0 +1,102 @@
+---
+title: 2.5 — Byte pair encoding (BPE)
+description: The subword tokenisation scheme GPT-2, GPT-3, and most modern LLMs actually use.
+---
+
+Our hand-rolled tokeniser works on tiny examples but doesn't scale. Real LLMs use a much
+smarter scheme called **byte pair encoding (BPE)**.
+
+The tokeniser used to train GPT-2, GPT-3, and the original ChatGPT base model is a BPE
+tokeniser. So this is exactly the kind of tokenisation we'll need.
+
+## Why BPE?
+
+Two reasons:
+
+1. **It handles unknown words.** A BPE tokeniser never has to emit `&lt;|unk|&gt;` because it
+   can break any unfamiliar word into smaller pieces — subwords or even individual
+   characters — that *are* in its vocabulary.
+2. **It balances the vocabulary.** Common words stay whole ("the", "and"), rare words
+   get split into frequent subword pieces ("unhappiness" → "un" + "happiness"). This
+   keeps the vocabulary size manageable while still covering almost any input.
+
+## Using BPE in practice
+
+Implementing BPE from scratch is messy. We use OpenAI's open-source library `tiktoken`,
+which implements BPE efficiently in Rust and is shipped as a Python wheel:
+
+```bash
+pip install tiktoken
+```
+
+```python
+from importlib.metadata import version
+import tiktoken
+print("tiktoken version:", version("tiktoken"))
+
+tokenizer = tiktoken.get_encoding("gpt2")
+```
+
+The `gpt2` encoding is the one used to train GPT-2.
+
+## Encoding and decoding
+
+The interface looks the same as our hand-rolled tokeniser:
+
+```python
+text = "Hello, do you like tea? <|endoftext|> In the sunlit terraces of someunknownPlace."
+integers = tokenizer.encode(text, allowed_special={"<|endoftext|>"})
+# → [15496, 11, 466, 345, 588, 8887, 30, 220, 50256, 554, 262, ...]
+
+strings = tokenizer.decode(integers)
+# → "Hello, do you like tea? <|endoftext|> In the sunlit terraces of someunknownPlace."
+```
+
+Two observations:
+
+1. `&lt;|endoftext|&gt;` gets the token ID **50256** — the largest ID in the vocabulary. The
+   full vocabulary size of the GPT-2 BPE tokeniser is **50,257**.
+2. The made-up word `someunknownPlace` round-trips perfectly. The tokeniser handled an
+   unknown word without needing `&lt;|unk|&gt;`.
+
+## How BPE handles unknown words
+
+The trick is the vocabulary itself. BPE doesn't keep every English word — it keeps:
+
+- All individual bytes / characters.
+- The most frequent subword combinations that appear in the training corpus.
+
+When it sees a word it doesn't recognise, it greedily chops the word into the largest
+pieces it does know, eventually falling back to individual characters if it has to. So
+`someunknownPlace` might break into `some` + `unknown` + `Place`, or even smaller —
+whatever fits.
+
+Because every possible byte sequence can be built up from the characters in the
+vocabulary, **BPE can tokenise any string the model might encounter**.
+
+## How BPE builds its vocabulary
+
+The short version:
+
+1. Start with all single characters in the vocabulary.
+2. Find the most frequent pair of adjacent tokens in a large training corpus.
+3. Merge that pair into a new token and add it to the vocabulary.
+4. Repeat until the vocabulary reaches a target size (e.g., 50,257).
+
+So you start with characters, then you grow subwords like `th`, `the`, `then`, and so on,
+each time picking the most frequent pair to merge. The merges are determined by a
+frequency cutoff, not by human design.
+
+## Why this matters
+
+Because GPT-style LLMs are trained with this BPE tokeniser, the inputs you'll ever see
+during inference are just sequences of these subword IDs. Understanding BPE is what lets
+you reason about things like:
+
+- Why the model can spell, translate, and handle code.
+- Why certain token IDs are worth more compute than others (some tokens = longer
+  strings).
+- Why token limits matter and how to count tokens in a prompt.
+
+Up next: how to use BPE tokens to actually generate the **input-target pairs** that
+train the model.

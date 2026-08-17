@@ -1,0 +1,59 @@
+---
+title: 2.9 — Summary
+description: The one-page recap of the entire text-preparation pipeline.
+---
+
+Here's the whole chapter on one page. Keep it handy when you need to refresh the
+end-to-end story.
+
+## The pipeline in one diagram
+
+```
+raw text
+  → tokenize into words / punctuation     (section 2.2)
+    → map tokens to integer token IDs     (section 2.3)
+      → optional special tokens           (section 2.4)
+        → BPE subword tokenization        (section 2.5)
+          → sliding-window input/target   (section 2.6)
+            → token embeddings            (section 2.7)
+              → + positional embeddings   (section 2.8)
+                → ready to feed the LLM
+```
+
+## Key takeaways
+
+- **Embeddings turn discrete data into continuous vectors.** Neural networks can only do
+  math, so words have to become vectors before anything else can happen.
+- **Tokenisation chops text into tokens.** A simple regex works for small examples; real
+  models use byte pair encoding (BPE) to handle any word.
+- **Token IDs are the bridge.** Each unique token maps to a unique integer through a
+  *vocabulary*.
+- **Special tokens help.** `&lt;|unk|&gt;` for unknown words (mostly obsolete with BPE), and
+  `&lt;|endoftext|&gt;` to separate unrelated texts. GPT models only need `&lt;|endoftext|&gt;`.
+- **BPE is what GPT uses.** It builds a vocabulary of frequent subword pieces, so it can
+  tokenise *any* word without ever needing an unknown-word token.
+- **Sliding windows make training pairs.** Take a long text, slide a window across it,
+  and each window produces one input and one target (the same window shifted by one).
+- **Embedding layers are lookup tables.** Row = token ID, value = vector. Initialised
+  randomly and trained with the model.
+- **Positional embeddings teach order.** Without them, the model can't tell "dog bites
+  man" from "man bites dog". GPT uses learned absolute positional embeddings.
+
+## Mental model to take forward
+
+```
+token ID    →  embedding layer  →  vector
+position    →  pos embedding    →  vector
+                                   ↓
+                          vector + vector
+                                   ↓
+                          input to transformer
+```
+
+That `vector + vector` is the smallest meaningful unit of "language as far as the model
+is concerned".
+
+## Up next
+
+Chapter 3 — *Coding Attention Mechanisms* — finally leaves data preparation behind and
+builds the attention mechanism that makes the transformer architecture actually work.

@@ -1,0 +1,68 @@
+---
+title: 2.1 — Understanding word embeddings
+description: Why neural networks need numbers, and how words get turned into continuous vectors they can actually learn from.
+---
+
+Deep neural networks — LLMs included — **cannot process raw text directly**. Text is
+*categorical* ("this word or that word"), and the mathematical operations inside a neural
+network only know how to chew on numbers. So before anything else can happen, every
+piece of text needs to be turned into a vector of numbers.
+
+That conversion step has a name: **embedding**.
+
+## What is an embedding?
+
+An embedding is a **mapping from a discrete object** (a word, an image, an entire
+document) **to a point in a continuous vector space**. Its job is simple: turn non-numeric
+data into a format a neural network can process.
+
+Different kinds of data need different embedding models. A model that embeds text won't
+work for audio or video. Within text itself there are different granularities:
+
+- **Word embeddings** — one vector per word. The most common kind.
+- **Sentence embeddings** — one vector per sentence or paragraph. Popular for
+  *retrieval-augmented generation* (RAG), where the model pulls relevant passages from an
+  external knowledge base before answering.
+- **Document embeddings** — one vector per whole document. Used in search and clustering.
+
+For our purposes — training a GPT-like LLM that generates text one word at a time —
+**word embeddings are the focus**.
+
+## Where do word embeddings come from?
+
+The earliest popular approach was **Word2Vec**, which trained a small neural network to
+predict a word from its neighbours (or vice versa). The big idea behind Word2Vec:
+
+> Words that appear in similar contexts tend to have similar meanings.
+
+When you project those vectors into 2D for visualisation, words with similar meanings
+naturally cluster together — birds near other birds, cities near other cities, and so on.
+
+## Dimensions and what they buy you
+
+Word embeddings can have anywhere from 1 to thousands of dimensions.
+
+- **More dimensions** = room to capture more nuanced relationships, at the cost of more
+  compute.
+- **Fewer dimensions** = faster and easier to visualise, but coarser.
+
+For real models:
+
+| Model | Embedding size |
+|---|---|
+| GPT-2 small (117M / 125M) | 768 |
+| GPT-3 (175B) | 12,288 |
+
+## A key difference vs. pretrained embeddings
+
+You *could* grab a Word2Vec lookup table off the shelf and feed its vectors into your
+model. But LLMs don't do that. Instead, they **learn their own embeddings as part of the
+model**, starting from random values and updating them during training.
+
+The advantage: the embeddings end up **tuned to the exact task and dataset**. The
+disadvantage: you have to actually train the model. That's the trade.
+
+In the rest of this chapter we'll walk through every step needed to produce these
+embeddings: splitting text into tokens, turning tokens into integer IDs, converting IDs
+into vectors, and finally adding positional information so the model knows *where* each
+token sits.
